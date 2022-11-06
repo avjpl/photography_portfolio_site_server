@@ -1,0 +1,53 @@
+enum Catgegory {
+  WILDLIFE
+  MACRO
+  PLACES
+  STUDIO
+  PEOPLE
+  FLOWERS
+}
+
+type File {
+  id:       ID
+  filename: String
+}
+
+type Variant {
+  id:       ID
+  src:      String
+  width:    Int
+  category: Catgegory
+}
+
+type Exif {
+  id:   ID
+  exif: String
+}
+
+type DeleteResponse {
+  success: Boolean!
+}
+
+type ImageResponse {
+  id:       ID
+  filename: String
+  variants: [Variant]
+  exif:     String
+}
+
+type SetCategoryResponse {
+  count: Int!
+}
+
+extend type Query {
+  getFiles: [ImageResponse]
+  getFilesBySize(width: Int): [ImageResponse]
+  getImageByCategory(category: Catgegory!, width: Int!): [ImageResponse]
+  uploads: [File]
+}
+
+extend type Mutation {
+  setCategory(category: Catgegory!, id: Int!): SetCategoryResponse
+  deleteFile(id: Int!, filename: String!): DeleteResponse
+  uploadFile(files: [Upload!]): [File!]
+}

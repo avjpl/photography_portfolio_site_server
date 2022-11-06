@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Image" ADD COLUMN     "width" INTEGER NOT NULL DEFAULT 600;
