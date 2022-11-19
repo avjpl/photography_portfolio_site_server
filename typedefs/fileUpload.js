@@ -110,6 +110,8 @@ const resolvers = {
           const stream = createReadStream();
           const image = await minioUpload({ filename, stream });
 
+          console.log(image);
+
           try {
             await prisma.image.create({
               data: {

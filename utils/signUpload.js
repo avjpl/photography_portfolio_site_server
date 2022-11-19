@@ -1,4 +1,7 @@
 import createHmac from 'create-hmac';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // TODO: Move to .env file
 const KEY =

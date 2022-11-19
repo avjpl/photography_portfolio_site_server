@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  minio:
+#    restart: always
+    image: quay.io/minio/minio
+    container_name: minio
+    command: server --console-address ":9001" /data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: avjpl # AWS_ACCESS_KEY_ID
+      MINIO_ROOT_PASSWORD: jj010479 # AWS_SECRET_ACCESS_KEY
+    volumes:
+      - images:/data
+    networks:
+      - backend
+
+  imgproxy:
+#    restart: always
+    image: darthsim/imgproxy
+    container_name: imgproxy
+    ports:
+      - 8080:8080
+    environment:
+      IMGPROXY_MAX_SRC_RESOLUTION: 62.5
+      IMGPROXY_ENABLE_WEBP_DETECTION: true
+      IMGPROXY_ENFORCE_WEBP: false
+      IMGPROXY_ENABLE_AVIF_DETECTION: true
+      IMGPROXY_ENFORCE_AVIF: false
+      AWS_ACCESS_KEY_ID: avjpl
+      AWS_SECRET_ACCESS_KEY: jj010479
+      IMGPROXY_USE_S3: true
+      IMGPROXY_S3_ENDPOINT: "http://minio:9000"
+      IMGPROXY_S3_REGION: "us-east-1"
+      IMGPROXY_KEY: 3607897725224f626ccfc891dbedb4ee4b7ced473f5b10c1c0c788f9601753b042fcdfdeae27b4c5e7b959bd986f88da09ece4df5babf2e63a9838598c9cfe24
+      IMGPROXY_SALT: 9ecbf7211ee0ecb5d656b303e041ece6d32708d555d02512f263f95f599aea18dd7a1d73a3fde683113bcd691a527ec59357c313cc46c14993a92d8bc5405937
+
+      # Base64-encoded image data. You can easily calculate it with base64 tmp/watermark.png | tr -d '\n'
+      # IMGPROXY_WATERMARK_DATA
+      # IMGPROXY_WATERMARK_OPACITY: 100
+    volumes:
+      - images:/images
+    networks:
+      - backend
+
+  postgres:
+#    restart: always
+    user: postgres:postgres
+    # user: "999:999"
+    image: postgres:14-alpine
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: jj010479
+      POSTGRES_USER: avjpl
+      POSTGRES_DB: photos
+    volumes:
+      - ~/docker/postgres14/data:/var/lib/postgresql/data
+
+volumes:
+  images:
+
+networks:
+  backend:

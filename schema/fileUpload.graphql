@@ -13,10 +13,12 @@ type File {
 }
 
 type Variant {
-  id:       ID
-  src:      String
-  width:    Int
-  category: Catgegory
+  category:     Catgegory
+  id:           ID
+  height:       Int
+  src:          String
+  orientation:  Int
+  width:        Int
 }
 
 type Exif {

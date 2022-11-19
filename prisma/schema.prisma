@@ -28,14 +28,16 @@ model Image {
 }
 
 model Variant {
-  id        Int       @id @default(autoincrement())
-  src       String    @db.VarChar(255) @unique
-  width     Int
-  category  Catgegory?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  image     Image     @relation(fields: [imageId], references: [id], onDelete: Cascade)
-  imageId   Int
+  id          Int       @id @default(autoincrement())
+  src         String    @db.VarChar(255) @unique
+  height      Int
+  width       Int
+  orientation Int
+  category    Catgegory?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  image       Image     @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  imageId     Int
 }
 
 model Contact {

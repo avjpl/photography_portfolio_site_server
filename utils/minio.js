@@ -1,11 +1,17 @@
 import Minio from 'minio';
+import dotenv from "dotenv";
+import sizeOf from 'image-size';
+import url from 'url';
+import http from 'http';
 
 import { encode, exif, urlSafeBase64 } from './index.js';
 
+dotenv.config();
+
 // TODO: Move credentials to .env file also place client on the datasource object
 const minioClient = new Minio.Client({
-  endPoint: '127.0.0.1',
-  port: 9000,
+  endPoint: '127.0.0.1', // .env
+  port: 9000, // .env
   useSSL: false,
   accessKey: 'avjpl',
   secretKey: 'jj010479',
@@ -80,6 +86,25 @@ const stream2buffer = async (stream) => {
   });
 }
 
+const getImage = (imgUrl) => {
+  const options = url.parse(imgUrl)
+
+  return new Promise((resolve, reject) => {
+    http.get(options, function (response) {
+      const chunks = [];
+
+      response.on('data', function (chunk) {
+        chunks.push(chunk);
+      })
+        .on('end', function() {
+          resolve(sizeOf(Buffer.concat(chunks)));
+        }).on('error', (e) => {
+          reject(e);
+        });
+    });
+  })
+};
+
 /*
 const tryCatch = async (fn, errObj = {}) => {
   try {
@@ -107,7 +132,9 @@ export const minioUpload = async ({ filename, stream }) => {
   const imageSizes = await Promise.all(sizes.map(async (width) => {
     const { src } = encode({ bucket, filename: base64Filename, width });
 
-    return { src, width };
+    const { orientation, height } = await getImage(`http://localhost:8080${src}`);
+
+    return { height, orientation, src, width };
   }));
 
   const exifData = await exif(await stream2buffer(await minioClient.getObject(bucket, base64Filename)));
