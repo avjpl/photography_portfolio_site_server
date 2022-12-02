@@ -73,31 +73,24 @@ const resolvers = {
         },
       });
 
-      // return await prisma.image.findMany({
-      //   orderBy: {
-      //     createdAt: 'desc',
-      //   },
-      //   select: {
-      //     id: true,
-      //     filename: true,
-      //     variants: true,
-      //     exif: true,
-      //   },
-      // });
-
       return { count };
     },
     deleteFile: async (_, { id, filename }, { dataSources: { prisma } }) => {
       try {
-        const dbResult = await prisma.image.delete({
-          where: { id }
+        const result = await prisma.image.delete({
+          where: { id },
+          select: {
+            id: true,
+            filename: true,
+          },
         });
-        const minioResult = dbResult && (await minioDelete({ filename: filename }));
+        const minioResult = result?.id && (await minioDelete({ filename: filename }));
+
         return {
-          success: true,
+          success: !!result?.id,
+          ...result,
         };
       } catch (e) {
-        console.error(e);
         console.error(e?.message);
       }
     },
@@ -110,26 +103,28 @@ const resolvers = {
           const stream = createReadStream();
           const image = await minioUpload({ filename, stream });
 
-          console.log(image);
-
           try {
-            await prisma.image.create({
+            const inserted = await prisma.image.create({
               data: {
                 filename: image.filename,
                 exif: image.exif,
                 variants: {
                   create: image.variants
                 },
-              }
-            })
+              },
+              select: {
+                id: true,
+                filename: true,
+                exif: true,
+                variants: true,
+              },
+            });
           } catch (e) {
             return new ValidationError(e.message);
           }
 
           return {
-            src: image.variants[0].src,
-            filename: image.filename,
-            width: image.variants[0].width,
+            ...inserted
           }
         });
 

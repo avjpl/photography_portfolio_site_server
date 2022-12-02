@@ -27,7 +27,9 @@ type Exif {
 }
 
 type DeleteResponse {
-  success: Boolean!
+  success:  Boolean!
+  id:       Int
+  filename: String
 }
 
 type ImageResponse {
@@ -45,11 +47,11 @@ extend type Query {
   getFiles: [ImageResponse]
   getFilesBySize(width: Int): [ImageResponse]
   getImageByCategory(category: Catgegory!, width: Int!): [ImageResponse]
-  uploads: [File]
+  uploads: [ImageResponse]
 }
 
 extend type Mutation {
   setCategory(category: Catgegory!, id: Int!): SetCategoryResponse
   deleteFile(id: Int!, filename: String!): DeleteResponse
-  uploadFile(files: [Upload!]): [File!]
+  uploadFile(files: [Upload!]): [ImageResponse!]
 }
