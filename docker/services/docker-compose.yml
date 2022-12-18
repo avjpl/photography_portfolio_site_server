@@ -46,9 +46,8 @@ services:
       - backend
 
   postgres:
-#    restart: always
+    restart: always
     user: postgres:postgres
-    # user: "999:999"
     image: postgres:14-alpine
     container_name: postgres
     ports:
@@ -58,10 +57,17 @@ services:
       POSTGRES_USER: avjpl
       POSTGRES_DB: photos
     volumes:
-      - ~/docker/postgres14/data:/var/lib/postgresql/data
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
 
 volumes:
   images:
+    driver: local
+  postgres-data:
+    driver: local
 
 networks:
   backend:

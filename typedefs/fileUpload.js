@@ -119,12 +119,12 @@ const resolvers = {
                 variants: true,
               },
             });
+
+            return {
+              ...inserted
+            }
           } catch (e) {
             return new ValidationError(e.message);
-          }
-
-          return {
-            ...inserted
           }
         });
 
